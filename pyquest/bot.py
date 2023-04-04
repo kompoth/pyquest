@@ -5,9 +5,9 @@ from aiogram.utils.callback_data import CallbackData
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import logging
 
-from config import config
-import nodes
-import db
+from pyquest.config import config
+import pyquest.nodes
+import pyquest.db
 
 MAX_BATCH_LEN = 4036
 TRANS_DICT = str.maketrans({

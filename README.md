@@ -21,4 +21,6 @@ Todo
 
 ## Running pyquest
 
-Todo
+```
+python -m pyquest
+```

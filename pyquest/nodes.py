@@ -1,6 +1,6 @@
 import ujson
 
-from config import config
+from pyquest.config import config
 
 
 def load_json():

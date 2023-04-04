@@ -1,8 +1,8 @@
 import argparse
 import logging
 
-import bot
-from config import config
+from pyquest.bot import start_bot
+from pyquest.config import config
 
 
 if __name__ == '__main__':
@@ -27,4 +27,4 @@ if __name__ == '__main__':
         logging.getLogger('apscheduler').setLevel(logging.INFO)
 
     # Run app
-    bot.start_bot()
+    start_bot()

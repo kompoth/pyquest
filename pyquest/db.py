@@ -1,7 +1,7 @@
 # Temporary dummies to emulate interaction with database
 import datetime as dt
 
-import config
+from .config import config
 
 def check_timer():
     # tmp dummy to send reminders to admins on 20:00.
