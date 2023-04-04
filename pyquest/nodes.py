@@ -28,7 +28,7 @@ def find_node(node_path=None):
 
 def cat_node(node_path):
     node = find_node(node_path)
-    return f"*{node['title']}*\n{node['text']}"
+    return node['text']
 
 def toggle_node(node_path, with_kids=True):
     node = find_node(node_path)
