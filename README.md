@@ -15,12 +15,19 @@ to set preffered reminder time and to mark questins and topics as completed.
 
 Sorry, currently pyquest repo is a mess as development is in a pre-alpha state.
 
-## Requirements
-
-Todo
-
 ## Running pyquest
 
+Create virtual environment and install dependencies:
+```
+python -n venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Make a copy of `example_config.toml`, name it `config.toml` and edit the way
+you need.
+
+Now you can start bot with following command:
 ```
 python -m pyquest
 ```
