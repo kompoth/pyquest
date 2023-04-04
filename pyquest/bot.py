@@ -1,19 +1,13 @@
-from aiogram import Bot, Dispatcher, executor
-from aiogram.types import Message, CallbackQuery, \
-    InlineKeyboardMarkup, InlineKeyboardButton 
-from aiogram.utils.callback_data import CallbackData
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import logging
+from aiogram import Bot, Dispatcher, executor
+from aiogram.types import Message, CallbackQuery
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from pyquest.config import config
-import pyquest.nodes
-import pyquest.db
+from pyquest.markup import gen_menu, gen_answer_link
+from pyquest.db import check_timer 
+import pyquest.nodes as nodes
 
-MAX_BATCH_LEN = 4036
-TRANS_DICT = str.maketrans({
-    '(': r'\(', ')': r'\)', '-': r'\-', '+': r'\+',
-    '.': r'\.', '#': r'\#', '>': r'\>'
-})
 ERR_MSG = '''Ошибка приложения:
 <code>{}</code>
 Пожалуйста, сообщи о ней администратору бота.'''
@@ -25,63 +19,6 @@ REM_MSG = '''Привет!
 # Initialize bot and dispatcher
 bot = Bot(token=config.token)
 dp = Dispatcher(bot)
-
-
-def gen_menu(path: str):
-    path = None if path == 'root' else path
-    base_path = '' if not path else f'{path}#' 
-    node = nodes.find_node(path)
-
-    markup = InlineKeyboardMarkup()
-    choice_cb = CallbackData('choice', 'path', 'leaf')
-    
-    for kid in node['kids']:
-        if kid['done']:
-            emoji = '✅'
-        elif kid['kids']:
-            emoji = '🗂'
-        else:
-            emoji = '📑'
-        new_path = base_path + str(kid['order'])
-        button = InlineKeyboardButton(
-        text=f"{emoji} {kid['title']}",
-            callback_data=choice_cb.new(
-                path=new_path,
-                leaf=not kid['kids']
-            )
-        )
-        markup.add(button)
-
-    if path:
-        back_button = InlineKeyboardButton(
-            text='🔙 В начало',
-            callback_data=choice_cb.new(
-                path='root',
-                leaf=False
-            )
-        )
-        markup.add(back_button)
-    return markup
-
-def gen_answer(path: str):
-    ans_str = nodes.cat_node(path)
-    ans = []
-    pos = 0
-    while pos < len(ans_str):
-        new_pos = ans_str.find('\n', pos)
-        if new_pos == -1:
-            new_pos = min(len(ans_str), pos + MAX_BATCH_LEN)
-        
-        batch_str = ans_str[pos:new_pos]
-        batch_str = batch_str.replace('**', r'*')
-        batch_str = batch_str.translate(TRANS_DICT) 
-
-        if ans and len(ans[-1] + batch_str) < MAX_BATCH_LEN:
-            ans[-1] += '\n' + batch_str
-        else:
-            ans.append(batch_str)
-        pos = new_pos + 1
-    return ans
 
 @dp.errors_handler()
 async def error_msg(update, error):
@@ -112,11 +49,11 @@ async def cmd_start(message: Message):
 async def menu_choice(query: CallbackQuery):
     path, leaf = query['data'].split(':')[1:]
     if leaf == 'True':
-       for text in gen_answer(path):
+       for text in gen_answer_link(path):
             await bot.send_message(
                 query.from_user.id,
                 text=text,
-                parse_mode="MarkdownV2"
+                parse_mode="html"
             )
     else:
         markup = gen_menu(path)
@@ -130,8 +67,30 @@ async def menu_choice(query: CallbackQuery):
             reply_markup=markup
         )
 
+@dp.message_handler(commands=['full_dbg'])
+async def cmd_full_dbg(message: Message):
+    queue = [None]
+    while queue:
+        path = queue.pop()
+        node = nodes.find_node(path)
+        if node['kids']:
+            if path is not None:
+                path += '#'
+            else:
+                path = ''
+            new_vals = [path + str(kid['order']) for kid in node['kids']]
+            queue += new_vals
+        else:
+            for text in gen_answer(path):
+                await bot.send_message(
+                    message.chat.id,
+                    text=text,
+                    parse_mode="Markdown"
+                )
+
+
 async def send_reminders():
-    for chat_id in db.check_timer():
+    for chat_id in check_timer():
          await bot.send_message(
                 chat_id, 
                 text=REM_MSG
