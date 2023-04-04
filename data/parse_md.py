@@ -49,7 +49,9 @@ def md_2_tree(raw_url, base_url, ignore=None):
         elif line and line[0] == '#' and not in_code:
             header_num += 1
             node = add_node(line, header_num, node, base_url)
-        elif node.text:
+            line = '**' + node.name + '**'
+        
+        if node.text:
             node.text += '\n' + line
         else:
             node.text = line
