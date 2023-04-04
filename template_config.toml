@@ -1,0 +1,5 @@
+token = 'your bot token'
+json_path = 'path to questions file'
+period = 10  # Period of checking for reminders, minutes
+timezone = 'your timezone'
+admins = [100000000]  # List of administrator ids 

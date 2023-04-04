@@ -1,0 +1,16 @@
+# App specific
+data/questions.json
+logs/*
+config.toml
+
+# Byte-compiled / optimized / DLL files
+*/__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+env/
+dist/
+build/
+*.egg-info/
+*.eggs/
+*.egg
