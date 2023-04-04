@@ -11,6 +11,7 @@ def check_timer():
     shedule_dttm = dt.datetime.combine(cur_dttm, dt.time(20, 0, 0))
     delta_tm = dt.timedelta(minutes=config.period)
     next_dttm = shedule_dttm + delta_tm
+    
     if shedule_dttm <= cur_dttm < next_dttm:
         return config.admins
     else:
