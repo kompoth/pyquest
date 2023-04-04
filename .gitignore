@@ -3,6 +3,9 @@ data/questions.json
 logs/*
 config.toml
 
+# Virtual environment
+venv/*
+
 # Byte-compiled / optimized / DLL files
 */__pycache__/
 *.py[cod]
